@@ -6,15 +6,32 @@
   'use strict';
 
   // === CONFIG FROM SCRIPT TAG ===
-  var me = document.currentScript || document.querySelector('script[data-endpoint]');
-  if (!me) return;
+  var me = document.currentScript || document.querySelector('script[src*="widget.js"][data-endpoint]');
+  if (!me) {
+    // Fallback: find any script with src containing widget.js
+    var scripts = document.querySelectorAll('script[src*="widget.js"]');
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].dataset && scripts[i].dataset.endpoint) {
+        me = scripts[i];
+        break;
+      }
+    }
+  }
+  if (!me) {
+    // Last resort: use default config from the script src
+    var allScripts = document.querySelectorAll('script[src*="fitsolutions-chatbot"]');
+    if (allScripts.length > 0) {
+      me = allScripts[allScripts.length - 1];
+    }
+  }
+  if (!me || !me.dataset) { console.warn('[FSC] Widget script tag not found'); return; }
 
   var CFG = {
     endpoint: me.dataset.endpoint || '',
     title: me.dataset.title || 'Fit Solutions',
     subtitle: me.dataset.subtitle || 'Assistente virtuale',
     color: me.dataset.color || '#1F7A7A',
-    welcome: me.dataset.welcome || 'Ciao! 👋 Come posso aiutarti?',
+    welcome: me.dataset.welcome || 'Ciao! Come posso aiutarti?',
   };
 
   if (!CFG.endpoint) { console.warn('[FSC] Manca data-endpoint'); return; }

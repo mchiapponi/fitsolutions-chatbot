@@ -199,3 +199,4 @@ fitsolutions-chatbot/
 
 Con un uso medio (50-100 conversazioni/giorno), il costo OpenAI sarà circa **$2-5/mese**.
 
+

@@ -198,3 +198,4 @@ fitsolutions-chatbot/
 | OpenAI GPT-4o-mini | ~$0.15/1M input tokens, ~$0.60/1M output tokens |
 
 Con un uso medio (50-100 conversazioni/giorno), il costo OpenAI sarà circa **$2-5/mese**.
+

@@ -1,50 +1,24 @@
 /**
- * Fit Solutions Chatbot Widget
- * Embed: <script src="https://BACKEND/widget.js" data-endpoint="..." data-title="..." ...></script>
+ * Fit Solutions Chatbot Widget v3
+ * Config via window.FSC_CONFIG global object
  */
 (function () {
   'use strict';
 
-  // === CONFIG FROM SCRIPT TAG ===
-  var me = document.currentScript || document.querySelector('script[src*="widget.js"][data-endpoint]');
-  if (!me) {
-    // Fallback: find any script with src containing widget.js
-    var scripts = document.querySelectorAll('script[src*="widget.js"]');
-    for (var i = 0; i < scripts.length; i++) {
-      if (scripts[i].dataset && scripts[i].dataset.endpoint) {
-        me = scripts[i];
-        break;
-      }
-    }
-  }
-  if (!me) {
-    // Last resort: use default config from the script src
-    var allScripts = document.querySelectorAll('script[src*="fitsolutions-chatbot"]');
-    if (allScripts.length > 0) {
-      me = allScripts[allScripts.length - 1];
-    }
-  }
-  if (!me || !me.dataset) { console.warn('[FSC] Widget script tag not found'); return; }
+  var CFG = window.FSC_CONFIG || {};
+  CFG.endpoint = CFG.endpoint || '';
+  CFG.title = CFG.title || 'Fit Solutions';
+  CFG.subtitle = CFG.subtitle || 'Assistente virtuale';
+  CFG.color = CFG.color || '#1F7A7A';
+  CFG.welcome = CFG.welcome || 'Ciao! Come posso aiutarti?';
 
-  var CFG = {
-    endpoint: me.dataset.endpoint || '',
-    title: me.dataset.title || 'Fit Solutions',
-    subtitle: me.dataset.subtitle || 'Assistente virtuale',
-    color: me.dataset.color || '#1F7A7A',
-    welcome: me.dataset.welcome || 'Ciao! Come posso aiutarti?',
-  };
-
-  if (!CFG.endpoint) { console.warn('[FSC] Manca data-endpoint'); return; }
-
-  // === PREVENT DOUBLE INIT ===
+  if (!CFG.endpoint) { console.warn('[FSC] Manca endpoint in window.FSC_CONFIG'); return; }
   if (document.getElementById('fsc-widget')) return;
 
-  // === STATE ===
   var messages = [];
   var isOpen = false;
   var isLoading = false;
 
-  // === COLOR UTILS ===
   function darken(hex, pct) {
     var num = parseInt(hex.replace('#', ''), 16);
     var r = Math.max(0, (num >> 16) - Math.round(255 * pct));
@@ -53,7 +27,6 @@
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
-  // === INJECT CSS ===
   var style = document.createElement('style');
   style.textContent = [
     '#fsc-widget{position:fixed;bottom:24px;right:24px;z-index:99990;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}',
@@ -89,15 +62,12 @@
   ].join('\n');
   document.head.appendChild(style);
 
-  // === BUILD DOM ===
   var widget = document.createElement('div');
   widget.id = 'fsc-widget';
 
-  // Chat window
   var win = document.createElement('div');
   win.id = 'fsc-window';
 
-  // Header
   win.innerHTML =
     '<div id="fsc-header">' +
     '  <span id="fsc-header-dot"></span>' +
@@ -113,7 +83,6 @@
     '</div>' +
     '<div id="fsc-powered">Powered by Fit Solutions</div>';
 
-  // Bubble
   var bubble = document.createElement('button');
   bubble.id = 'fsc-bubble';
   bubble.setAttribute('aria-label', 'Apri chat');
@@ -124,12 +93,10 @@
   widget.appendChild(bubble);
   document.body.appendChild(widget);
 
-  // === REFS ===
   var msgContainer = document.getElementById('fsc-messages');
   var inputEl = document.getElementById('fsc-input');
   var sendBtn = document.getElementById('fsc-send');
 
-  // === OPEN/CLOSE ===
   bubble.addEventListener('click', function () {
     isOpen = !isOpen;
     win.classList.toggle('open', isOpen);
@@ -140,7 +107,6 @@
     }
   });
 
-  // === SEND ===
   function send() {
     var text = inputEl.value.trim();
     if (!text || isLoading) return;
@@ -158,7 +124,6 @@
     }
   });
 
-  // === API CALL ===
   function callAPI() {
     isLoading = true;
     sendBtn.disabled = true;
@@ -186,7 +151,6 @@
       });
   }
 
-  // === DOM HELPERS ===
   function addBotMessage(text) {
     var el = document.createElement('div');
     el.className = 'fsc-msg bot';

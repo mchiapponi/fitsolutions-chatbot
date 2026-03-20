@@ -7,27 +7,26 @@ export function middleware(request: NextRequest) {
 
   // Public routes — no auth needed
   if (
-    path.startsWith('/api/chat') ||      // Widget chat endpoint
-    path.startsWith('/api/auth') ||       // Login endpoint
-    path === '/login' ||                  // Login page
-    path.startsWith('/_next') ||          // Next.js internals
-    path.startsWith('/favicon')           // Favicon
+    path.startsWith('/api/chat') ||
+    path.startsWith('/api/auth') ||
+    path === '/login' ||
+    path === '/widget.js' ||
+    path.startsWith('/_next') ||
+    path.startsWith('/favicon')
   ) {
     return NextResponse.next();
   }
 
   // Cron route — uses its own auth (Bearer token)
   if (path === '/api/sync' && request.method === 'GET') {
-    return NextResponse.next(); // Auth checked inside the route handler
+    return NextResponse.next();
   }
 
   // Everything else requires admin auth
   if (!isAuthenticated(request)) {
-    // API routes get 401
     if (path.startsWith('/api/')) {
       return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
-    // Pages get redirected to login
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

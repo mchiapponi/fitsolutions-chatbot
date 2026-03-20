@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Permetti al widget di chiamare da fitsolutions.it
   async headers() {
     return [
       {
@@ -9,6 +8,12 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'POST, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+      {
+        source: '/widget.js',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
       },
     ];

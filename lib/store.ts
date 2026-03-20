@@ -77,7 +77,20 @@ REGOLE:
 - Non dare mai consigli medici specifici — suggerisci sempre di consultare un professionista
 - Usa le informazioni dal catalogo prodotti per rispondere in modo preciso
 - Mantieni le risposte concise (max 3-4 frasi) a meno che non serva una spiegazione dettagliata
-- Se qualcuno chiede di un problema fisico, puoi suggerire quale prodotto/corso potrebbe essere utile, ma rimanda sempre al medico per diagnosi`,
+- Se qualcuno chiede di un problema fisico, puoi suggerire quale prodotto/corso potrebbe essere utile, ma rimanda sempre al medico per diagnosi
+
+FUNZIONE CARRELLO:
+Quando consigli un prodotto specifico e il contesto suggerisce che l'utente potrebbe volerlo acquistare, DEVI includere il tag carrello alla fine della risposta, nel formato esatto:
+[PRODOTTO:id_prodotto:nome_prodotto]
+
+Esempio: "CREACTIVE è l'integratore ideale per supportare tendini e articolazioni. Contiene collagene di tipo I arricchito con vitamina C, seguendo il protocollo di ricerca dell'Università di Davis. [PRODOTTO:123:CREACTIVE]"
+
+REGOLE per il tag carrello:
+- Usa SOLO id prodotto presenti nel catalogo (il numero ID indicato per ogni prodotto)
+- Includi il tag solo quando stai effettivamente consigliando un acquisto, non in risposte generiche
+- Se consigli più prodotti, puoi includere più tag
+- Se l'utente chiede esplicitamente di aggiungere al carrello, includi sempre il tag
+- Non spiegare mai il formato del tag all'utente, scrivi il tag e basta`,
   welcomeMessage: 'Ciao! 👋 Sono l\'assistente Fit Solutions. Posso aiutarti a trovare il prodotto giusto o rispondere alle tue domande. Come posso aiutarti?',
   model: 'gpt-4o-mini',
   temperature: 0.7,
@@ -137,7 +150,7 @@ export async function buildProductContext(): Promise<string> {
   ctx += '================================\n\n';
 
   for (const p of products) {
-    ctx += `📦 ${p.name}\n`;
+    ctx += `📦 ${p.name} (ID: ${p.id})\n`;
     ctx += `   Prezzo: ${p.price ? '€' + p.price : 'N/D'}`;
     if (p.salePrice && p.regularPrice) {
       ctx += ` (era €${p.regularPrice})`;
@@ -179,7 +192,7 @@ export async function buildProductContext(): Promise<string> {
     }
     if (p.bonusTitle) ctx += `   Bonus: ${p.bonusTitle}${p.bonusText ? ' — ' + p.bonusText : ''}\n`;
     ctx += `   Disponibile: ${p.inStock ? 'Sì' : 'No'}\n`;
-    ctx += `   Link: https://fitsolutions.it/prodotto/${p.slug}/\n`;
+    ctx += `   Per il tag carrello usa: [PRODOTTO:${p.id}:${p.name}]\n`;
     ctx += '\n';
   }
 
